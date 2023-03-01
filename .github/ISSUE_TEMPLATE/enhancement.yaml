@@ -1,0 +1,26 @@
+name: Feature Request
+description: Suggest a new feature
+labels: ["enhancement"]
+
+body:
+- type: textarea
+  id: details
+  attributes:
+    label: What is your suggestion for a patch?
+    placeholder: "Example: It would be nice to have an Improved Health Bar with a class to handle it"
+  validations:
+    required: true
+
+- type: dropdown
+  id: engine
+  attributes:
+    label: Target Engine
+    description: What should be the target engine for the patch?
+    multiple: false
+    options:
+    - "Any"
+    - "All"
+    - "Base Game"
+    - "Forever Hybrid"
+    - "Forever Legacy"
+    - "Psych Engine"

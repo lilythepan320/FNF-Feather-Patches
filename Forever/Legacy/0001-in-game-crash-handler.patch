@@ -1,0 +1,302 @@
+From 05dd132af9ec84a1ed6f7bda909d41ec894ac12f Mon Sep 17 00:00:00 2001
+From: Gabriela <93128334+BeastlyGabi@users.noreply.github.com>
+Date: Wed, 1 Mar 2023 17:45:51 -0400
+Subject: [PATCH] in-game crash handler
+
+---
+ source/Main.hx                 |  60 +-----------
+ source/feather/CrashHandler.hx | 169 +++++++++++++++++++++++++++++++++
+ 2 files changed, 172 insertions(+), 57 deletions(-)
+ create mode 100644 source/feather/CrashHandler.hx
+
+diff --git a/source/Main.hx b/source/Main.hx
+index a270f25..85da2d0 100644
+--- a/source/Main.hx
++++ b/source/Main.hx
+@@ -1,5 +1,6 @@
+ package;
+ 
++import feather.CrashHandler;
+ import flixel.FlxBasic;
+ import flixel.FlxG;
+ import flixel.FlxGame;
+@@ -113,8 +114,6 @@ class Main extends Sprite
+ 			note studders and shit its weird.
+ 		**/
+ 
+-		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
+-
+ 		#if (html5 || neko)
+ 		framerate = 60;
+ 		#end
+@@ -140,8 +139,8 @@ class Main extends Sprite
+ 		FlxTransitionableState.skipNextTransIn = true;
+ 
+ 		// here we set up the base game
+-		var gameCreate:FlxGame;
+-		gameCreate = new FlxGame(gameWidth, gameHeight, mainClassState, #if (flixel < "5.0.0") zoom, #end framerate, framerate, skipSplash);
++		var gameCreate:FNFGame;
++		gameCreate = new FNFGame(gameWidth, gameHeight, mainClassState, #if (flixel < "5.0.0") zoom, #end framerate, framerate, skipSplash);
+ 		addChild(gameCreate); // and create it afterwards
+ 
+ 		// default game FPS settings, I'll probably comment over them later.
+@@ -202,57 +201,4 @@ class Main extends Sprite
+ 			FlxG.updateFramerate = newFramerate;
+ 		}
+ 	}
+-
+-	function onCrash(e:UncaughtErrorEvent):Void
+-	{
+-		var errMsg:String = "";
+-		var path:String;
+-		var callStack:Array<StackItem> = CallStack.exceptionStack(true);
+-		var dateNow:String = Date.now().toString();
+-
+-		dateNow = StringTools.replace(dateNow, " ", "_");
+-		dateNow = StringTools.replace(dateNow, ":", "'");
+-
+-		path = "crash/" + "FE_" + dateNow + ".txt";
+-
+-		for (stackItem in callStack)
+-		{
+-			switch (stackItem)
+-			{
+-				case FilePos(s, file, line, column):
+-					errMsg += file + " (line " + line + ")\n";
+-				default:
+-					Sys.println(stackItem);
+-			}
+-		}
+-
+-		errMsg += "\nUncaught Error: " + e.error + "\nPlease report this error to the GitHub page: https://github.com/Yoshubs/Forever-Engine";
+-
+-		if (!FileSystem.exists("crash/"))
+-			FileSystem.createDirectory("crash/");
+-
+-		File.saveContent(path, errMsg + "\n");
+-
+-		Sys.println(errMsg);
+-		Sys.println("Crash dump saved in " + Path.normalize(path));
+-
+-		var crashDialoguePath:String = "FE-CrashDialog";
+-
+-		#if windows
+-		crashDialoguePath += ".exe";
+-		#end
+-
+-		if (FileSystem.exists(crashDialoguePath))
+-		{
+-			Sys.println("Found crash dialog: " + crashDialoguePath);
+-			new Process(crashDialoguePath, [path]);
+-		}
+-		else
+-		{
+-			Sys.println("No crash dialog found! Making a simple alert instead...");
+-			Application.current.window.alert(errMsg, "Error!");
+-		}
+-
+-		Sys.exit(1);
+-	}
+ }
+diff --git a/source/feather/CrashHandler.hx b/source/feather/CrashHandler.hx
+new file mode 100644
+index 0000000..efb419d
+--- /dev/null
++++ b/source/feather/CrashHandler.hx
+@@ -0,0 +1,169 @@
++package feather;
++
++import flixel.FlxG;
++import flixel.FlxGame;
++import flixel.addons.ui.FlxUIState;
++import flixel.text.FlxText;
++import haxe.CallStack;
++import haxe.Exception;
++import haxe.io.Path;
++import meta.state.menus.MainMenuState;
++import openfl.events.Event;
++#if sys
++import sys.FileSystem;
++import sys.io.File;
++#end
++
++/**
++ * a multi-purpose, customizable Crash Handler State
++ * rather than using a fancy executable to show exceptions
++ * when the game crashes, it opens this state instead, while
++ * never letting the game close and instead letting you go back
++ * to the main menu
++ */
++class CrashHandler extends FlxUIState
++{
++	var errorString:String = '';
++
++	public function new(errorString:String = '')
++	{
++		this.errorString = errorString;
++		super();
++	}
++
++	var errorField:FlxText;
++
++	#if sys
++	public var logFilePath:String = 'crash/FE_${Date.now().toString()}.txt';
++
++	public function saveContent(message:String, path:String)
++	{
++		if (!FileSystem.exists("crash/"))
++			FileSystem.createDirectory("crash/");
++		File.saveContent(path, message + "\n");
++		Sys.println("Crash dump saved in " + Path.normalize(path));
++	}
++	#end
++
++	public override function create()
++	{
++		FlxG.mouse.visible = true;
++
++		errorField = new FlxText(0, 0, 0, errorString, 32);
++		errorField.font = "VCR OSD Mono";
++		errorField.alignment = CENTER;
++		errorField.screenCenter(XY);
++		add(errorField);
++	}
++
++	public override function update(elapsed:Float)
++	{
++		super.update(elapsed);
++
++		#if sys
++		if (FlxG.keys.justPressed.ENTER)
++			saveContent(errorString, logFilePath);
++		#end
++
++		if (FlxG.keys.justPressed.ESCAPE)
++		{
++			FlxG.mouse.visible = false;
++			FlxG.switchState(Type.createInstance(MainMenuState, []));
++		}
++	}
++}
++
++/**
++ * Serves as a Dependency to the Crash Handler, it is simply
++ * an extension to FlxGame in order to actually open the crash handler state
++ * when the game crashes
++ */
++class FNFGame extends FlxGame
++{
++	public override function create(_:Event)
++	{
++		try
++		{
++			super.create(_);
++		}
++		catch (e:Exception)
++		{
++			onCrash(e);
++		}
++	}
++
++	public override function draw()
++	{
++		try
++		{
++			super.draw();
++		}
++		catch (e:Exception)
++		{
++			onCrash(e);
++		}
++	}
++
++	public override function update()
++	{
++		try
++		{
++			super.update();
++		}
++		catch (e:Exception)
++		{
++			onCrash(e);
++		}
++	}
++
++	public override function onEnterFrame(_:Event)
++	{
++		try
++		{
++			super.onEnterFrame(_);
++		}
++		catch (e:Exception)
++		{
++			onCrash(e);
++		}
++	}
++
++	public override function onFocus(_:Event)
++	{
++		try
++		{
++			super.onFocus(_);
++		}
++		catch (e:Exception)
++		{
++			onCrash(e);
++		}
++	}
++
++	public override function onFocusLost(_:Event)
++	{
++		try
++		{
++			super.onFocusLost(_);
++		}
++		catch (e:Exception)
++		{
++			onCrash(e);
++		}
++	}
++
++	private function onCrash(e:Exception)
++	{
++		var errorStack:Array<StackItem> = CallStack.exceptionStack(true);
++
++		var fileStack:String = '';
++		var controlsText:String = '';
++		#if sys
++		controlsText = '\nPress ENTER to save this text to a text file\n';
++		#end
++		controlsText = '\nPress SPACE to go to our GitHub Page\n';
++		controlsText = '\nPress ESCAPE to return to the Main Menu\n';
++		for (item in errorStack)
++		{
++			switch (item)
++			{
++				case FilePos(s, file, line, column):
++					fileStack = '${file} (line ${line})\n';
++				default:
++					#if sys
++					Sys.println(item);
++					#end
++			}
++		}
++		if (FlxG.keys.justPressed.SPACE)
++		{
++			#if linux
++			Sys.command('/usr/bin/xdg-open', ["https://github.com/BeastlyGabi/Forever-Engine-Archive"]);
++			#else
++			FlxG.openURL("https://github.com/BeastlyGabi/Forever-Engine-Archive");
++			#end
++		}
++
++		return FlxG.switchState(Type.createInstance(CrashHandler, [
++			'= a Critical Error has occurred =
++				${fileStack}\nCaught: ${e}\n
++				${controlsText}'
++		]));
++	}
++}
+-- 
+2.39.1.windows.1
+

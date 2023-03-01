@@ -1,0 +1,37 @@
+name: Bug Report
+description: File a bug report
+labels: ["bug"]
+
+body:
+- type: textarea
+  id: bug_details
+  attributes:
+    label: Cause of the bug
+    description: Tell us in detail what patch was used, and how exactly this bug happened
+    placeholder: "Example: I'm using the crash handler patch, this bug happens when selecting **X**"
+  validations:
+    required: true
+
+- type: dropdown
+  id: bug_platform
+  attributes:
+    label: Target Platform
+    description: In which platform did you face this bug?
+    multiple: false
+    options:
+    - "Windows (64 Bits)"
+    - "Windows (32 Bits)"
+    - "MacOS"
+    - "Linux (Ubuntu, Fedora, Arch)"
+
+- type: dropdown
+  id: bug_engine
+  attributes:
+    label: Target Engine
+    description: By applying the patch, in which engine did you face this bug?
+    multiple: false
+    options:
+    - "Base Game"
+    - "Forever Hybrid"
+    - "Forever Legacy"
+    - "Psych Engine"
