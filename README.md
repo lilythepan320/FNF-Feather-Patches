@@ -8,7 +8,7 @@
 ## Compatibility
 
 This project aims to work with the main Friday Night Funkin' Engines in such a way no patches conflict with eachother, what are these Engines you may ask?
-- [the Base Game](https://github.com/Funkin-Crew/Funkin)
+- [the Base Game](https://github.com/FunkinCrew/Funkin)
 - [Forever Engine](https://github.com/BeastlyGabi/Forever-Engine-Archive)
 - [Psych Engine](https://github.com/ShadowMario/FNF-PsychEngine)
 
