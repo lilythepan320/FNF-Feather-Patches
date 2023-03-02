@@ -1,25 +1,45 @@
-From e174ff0f34633b61410ffaffdc182761927e05f6 Mon Sep 17 00:00:00 2001
+From b4db46f5ae53a34875bbd8af6496d6aad94607d0 Mon Sep 17 00:00:00 2001
 From: Gabriela <93128334+BeastlyGabi@users.noreply.github.com>
-Date: Wed, 1 Mar 2023 19:52:48 -0400
-Subject: [PATCH] custom in-game crash handler
+Date: Thu, 2 Mar 2023 14:10:04 -0400
+Subject: [PATCH] in-game crash handler
 
 ---
- source/Main.hx                 |  58 +---------
- source/feather/CrashHandler.hx | 192 +++++++++++++++++++++++++++++++++
- 2 files changed, 195 insertions(+), 55 deletions(-)
+ source/Main.hx                 |  69 ++-----------
+ source/feather/CrashHandler.hx | 170 +++++++++++++++++++++++++++++++++
+ 2 files changed, 178 insertions(+), 61 deletions(-)
  create mode 100644 source/feather/CrashHandler.hx
 
 diff --git a/source/Main.hx b/source/Main.hx
-index eb02cec..04c5e72 100644
+index eb02cec..5f01020 100644
 --- a/source/Main.hx
 +++ b/source/Main.hx
-@@ -16,18 +16,12 @@ import lime.app.Application;
- import Discord.DiscordClient;
- #end
+@@ -1,33 +1,26 @@
+ package;
+ 
+-import flixel.graphics.FlxGraphic;
++#if desktop
++import Discord.DiscordClient;
++#end
+ import flixel.FlxG;
+ import flixel.FlxGame;
+ import flixel.FlxState;
++import flixel.graphics.FlxGraphic;
++import lime.app.Application;
+ import openfl.Assets;
+ import openfl.Lib;
+ import openfl.display.FPS;
+ import openfl.display.Sprite;
+-import openfl.events.Event;
+ import openfl.display.StageScaleMode;
+-import lime.app.Application;
++import openfl.events.Event;
+ 
+-#if desktop
+-import Discord.DiscordClient;
+-#end
++using StringTools;
  
 -//crash handler stuff
-+using StringTools;
-+
  #if CRASH_HANDLER
 -import openfl.events.UncaughtErrorEvent;
 -import haxe.CallStack;
@@ -35,18 +55,18 @@ index eb02cec..04c5e72 100644
  class Main extends Sprite
  {
  	var game = {
-@@ -105,10 +99,6 @@ class Main extends Sprite
+@@ -104,10 +97,6 @@ class Main extends Sprite
+ 		FlxG.autoPause = false;
  		FlxG.mouse.visible = false;
  		#end
- 		
+-		
 -		#if CRASH_HANDLER
 -		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
 -		#end
--
+ 
  		#if desktop
  		if (!DiscordClient.isInitialized) {
- 			DiscordClient.initialize();
-@@ -118,46 +108,4 @@ class Main extends Sprite
+@@ -118,46 +107,4 @@ class Main extends Sprite
  		}
  		#end
  	}
@@ -95,13 +115,12 @@ index eb02cec..04c5e72 100644
  }
 diff --git a/source/feather/CrashHandler.hx b/source/feather/CrashHandler.hx
 new file mode 100644
-index 0000000..987fd23
+index 0000000..5f6675e
 --- /dev/null
 +++ b/source/feather/CrashHandler.hx
-@@ -0,0 +1,192 @@
+@@ -0,0 +1,170 @@
 +package feather;
 +
-+#if CRASH_HANDLER
 +import flixel.FlxG;
 +import flixel.FlxGame;
 +import flixel.addons.ui.FlxUIState;
@@ -110,8 +129,6 @@ index 0000000..987fd23
 +import haxe.Exception;
 +import haxe.io.Path;
 +import openfl.events.Event;
-+import sys.FileSystem;
-+import sys.io.File;
 +
 +/**
 + * a multi-purpose, customizable Crash Handler State
@@ -147,7 +164,7 @@ index 0000000..987fd23
 +	{
 +		super.update(elapsed);
 +
-+ 		if (FlxG.keys.justPressed.SPACE)
++		if (FlxG.keys.justPressed.SPACE)
 +		{
 +			#if linux
 +			Sys.command('/usr/bin/xdg-open', ["https://github.com/ShadowMario/FNF-PsychEngine"]);
@@ -272,8 +289,6 @@ index 0000000..987fd23
 +		]));
 +	}
 +}
-+#end
-\ No newline at end of file
 -- 
 2.39.1.windows.1
 
