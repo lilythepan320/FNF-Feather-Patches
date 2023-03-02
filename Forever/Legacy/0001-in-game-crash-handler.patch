@@ -139,18 +139,6 @@ index 0000000..efb419d
 +
 +	var errorField:FlxText;
 +
-+	#if sys
-+	public var logFilePath:String = 'crash/FE_${Date.now().toString()}.txt';
-+
-+	public function saveContent(message:String, path:String)
-+	{
-+		if (!FileSystem.exists("crash/"))
-+			FileSystem.createDirectory("crash/");
-+		File.saveContent(path, message + "\n");
-+		Sys.println("Crash dump saved in " + Path.normalize(path));
-+	}
-+	#end
-+
 +	public override function create()
 +	{
 +		FlxG.mouse.visible = true;
@@ -166,10 +154,14 @@ index 0000000..efb419d
 +	{
 +		super.update(elapsed);
 +
-+		#if sys
-+		if (FlxG.keys.justPressed.ENTER)
-+			saveContent(errorString, logFilePath);
-+		#end
++ 		if (FlxG.keys.justPressed.SPACE)
++		{
++			#if linux
++			Sys.command('/usr/bin/xdg-open', ["https://github.com/BeastlyGabi/Forever-Engine-Archive"]);
++			#else
++			FlxG.openURL("https://github.com/BeastlyGabi/Forever-Engine-Archive");
++			#end
++		}
 +
 +		if (FlxG.keys.justPressed.ESCAPE)
 +		{
@@ -264,11 +256,9 @@ index 0000000..efb419d
 +
 +		var fileStack:String = '';
 +		var controlsText:String = '';
-+		#if sys
-+		controlsText = '\nPress ENTER to save this text to a text file\n';
-+		#end
-+		controlsText = '\nPress SPACE to go to our GitHub Page\n';
-+		controlsText = '\nPress ESCAPE to return to the Main Menu\n';
++		controlsText += '\nConsider taking a Screenshot of this and reporting it\n';
++		controlsText += '\nPress SPACE to go to our GitHub Page\n';
++		controlsText += '\nPress ESCAPE to return to the Main Menu\n';
 +		for (item in errorStack)
 +		{
 +			switch (item)
@@ -280,14 +270,6 @@ index 0000000..efb419d
 +					Sys.println(item);
 +					#end
 +			}
-+		}
-+		if (FlxG.keys.justPressed.SPACE)
-+		{
-+			#if linux
-+			Sys.command('/usr/bin/xdg-open', ["https://github.com/BeastlyGabi/Forever-Engine-Archive"]);
-+			#else
-+			FlxG.openURL("https://github.com/BeastlyGabi/Forever-Engine-Archive");
-+			#end
 +		}
 +
 +		return FlxG.switchState(Type.createInstance(CrashHandler, [
