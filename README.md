@@ -1,5 +1,5 @@
 <p align="left">
-  <img src="art/header.png"/></a>
+  <img src=".assets/header.png"/></a>
   <h3 align="left">A set of patches for Friday Night Funkin' and its various Engines!</h3>
 </p>
 
