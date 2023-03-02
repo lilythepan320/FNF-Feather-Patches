@@ -1,7 +1,7 @@
 From e174ff0f34633b61410ffaffdc182761927e05f6 Mon Sep 17 00:00:00 2001
 From: Gabriela <93128334+BeastlyGabi@users.noreply.github.com>
 Date: Wed, 1 Mar 2023 19:52:48 -0400
-Subject: [PATCH] [PSYCH] custom in-game crash handler
+Subject: [PATCH] custom in-game crash handler
 
 ---
  source/Main.hx                 |  58 +---------
