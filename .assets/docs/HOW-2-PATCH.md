@@ -4,6 +4,8 @@ So then, how do I use GitHub Patches?
 
 In order to get started with Patches, you **must** have a repository on your desired project folder, if you don't, you can easily open up a Command Prompt/Terminal and type `git init` in order to initialize an empty repository
 
+- If you came from the [Submissions](SUBMISSIONS.md) section, you can just ignore this
+
 to Apply a Patch to your repository, simply get the file of the patch you want to apply, move it to your project's root folder, and on your Command Prompt Window, type `git apply NAME-OF-THE-FILE.patch`
 
 this will change all files that need to be modified in the source code
