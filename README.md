@@ -1,13 +1,9 @@
-<p align="left">
-  <img src=".assets/header.png"/></a>
-  <h3 align="left">A set of patches for Friday Night Funkin' and its various Engines!</h3>
-</p>
+<img src=".assets/header.png" width=800 /></a>
+<h3 align="left">A set of patches for Friday Night Funkin' and its various Engines!</h3>
 
 ----------------------------------------------
 
-<h1 align="center">
-Compatibility
-</h1>
+<img src=".assets/compatibility.png" width=800/></a>
 
 This project aims to work with a handful of "base" Friday Night Funkin' Engines in such a way no patches conflict with eachother
 
@@ -17,9 +13,7 @@ This project aims to work with a handful of "base" Friday Night Funkin' Engines 
 
 ----------------------------------------------
 
-<h1 align="center">
-What is a patch?
-</h1>
+<img src=".assets/patch.png" width=800/></a>
 
 What exactly is a **patch**? well, GitHub has a feature that allows for users to inject code with files, when patches are applied to a repository, every file that is specified on the patch is modified, it's kinda like making a GitHub commit but containing it on a single file
 
