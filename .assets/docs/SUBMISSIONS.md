@@ -35,4 +35,4 @@ Fig. 5: Repository Folder.
 
 **We are done here!**
 
-**Read the [How to Patch](.assets/docs/HOW-2-PATCH.md) for information in How to make and apply patches.**
+**Read the [How to Patch](/.assets/docs/HOW-2-PATCH.md) for information in How to make and apply patches.**
